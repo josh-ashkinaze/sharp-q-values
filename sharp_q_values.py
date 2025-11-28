@@ -26,7 +26,6 @@ Date: 2025-11-29 11:30:21
 
 import numpy as np
 
-
 def sharp_computer(pvals, step=0.001):
     """BKY (2006) sharpened two-stage FDR q-values
 
