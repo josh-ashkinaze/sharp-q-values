@@ -1,11 +1,11 @@
 """
 Author: Joshua Ashkinaze
 
-Description: Implements tests for the sharpened two-stage FDR q-values computation.
+Description: Implements tests for the sharpened two-stage FDR q-values computation. I got the STATA
+qs by running the .do file marked as ref 3 in the README.
 
 Date: 2025-11-29 11:31:50
 """
-
 
 from sharp_q_values import sharp_computer
 import numpy as np
@@ -49,8 +49,6 @@ TESTS = {'t1': {'ps': [0.02, 0.01, 0.03, 0.08, 0.168, 0.168, 0.168],
                               0.579,
                               0.579,
                               0.579]}}
-
-
 
 if __name__ == '__main__':
     total_ps = sum(len(test['ps']) for test in TESTS.values())
