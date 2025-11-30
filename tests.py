@@ -9,6 +9,7 @@ Date: 2025-11-29 11:31:50
 
 from sharp_q_values import sharp_computer
 import numpy as np
+from unittest import TestCase
 
 FLOAT_TOL = 1e-6
 TESTS = {'t1': {'ps': [0.02, 0.01, 0.03, 0.08, 0.168, 0.168, 0.168],
@@ -50,17 +51,27 @@ TESTS = {'t1': {'ps': [0.02, 0.01, 0.03, 0.08, 0.168, 0.168, 0.168],
                               0.579,
                               0.579]}}
 
-if __name__ == '__main__':
-    total_ps = sum(len(test['ps']) for test in TESTS.values())
-    print(f"Running {total_ps} p-values across {len(TESTS)} tests.")
+class TestSharpQValues(TestCase):
+    def test_sharp_q_values(self):
+        for test_name, test_data in TESTS.items():
+            ps = test_data['ps']
+            stata_qs = test_data['stata_qs']
+            computed_qs = sharp_computer(ps, step=0.001)
+            for i, (computed_q, stata_q) in enumerate(zip(computed_qs, stata_qs)):
+                self.assertAlmostEqual(computed_q, stata_q, delta=FLOAT_TOL,
+                                       msg=f"Q-value mismatch in test {test_name} at index {i}")
+        print(f"Tests against STATA passed.")
 
-    for test_name, test_data in TESTS.items():
-        ps = test_data['ps']
-        stata_qs = test_data['stata_qs']
-        computed_qs = sharp_computer(ps, step=0.001)
-        for i, (computed_q, stata_q) in enumerate(zip(computed_qs, stata_qs)):
-            if abs(computed_q - stata_q) > FLOAT_TOL:
-                raise AssertionError("Q-value mismatch")
-            else:
-                pass
-    print("All tests passed successfully.")
+class HandleValidations(TestCase):
+    def test_empty_pvals(self):
+        with self.assertRaises(ValueError):
+            sharp_computer([], step=0.001)
+    def test_invalid_pvals(self):
+        with self.assertRaises(ValueError):
+            sharp_computer([-0.1, 0.5, 1.2], step=0.001)
+
+if __name__ == "__main__":
+    import unittest
+    unittest.main()
+
+
