@@ -24,7 +24,7 @@ q_values = sharp_computer(p_values)
 
 # Tests
 
-I compared this against the STATA code in [3] for different sets of p-values and got results 
+I compared this against Michael Anderson's STATA code in [3] for different sets of p-values and got results 
 within a floating point tolerance of 1e-6. For context, I'm running Python 3.13 with numpy 2.3.1. I am using STATA 14. 
 
 

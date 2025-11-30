@@ -17,7 +17,7 @@ For each candidate FDR level q from 1.000 down to 0.001:
  - Inflate the FDR level to q2 = q' * (m / m0_hat) and cap at 1.0.
  - Run BH at level q2 and get R2 rejections.
 
-3.  Any hypothesis with rank <= R2 is said to be "rejected at level q".
+3. Any hypothesis with rank <= R2 is said to be "rejected at level q".
     We record for each hypothesis, the smallest q at which it is rejected.
     That smallest q is its sharpened q-value.
 
@@ -27,7 +27,8 @@ Date: 2025-11-29 11:30:21
 import numpy as np
 
 def sharp_computer(pvals, step=0.001):
-    """BKY (2006) sharpened two-stage FDR q-values
+    """
+    BKY (2006) sharpened two-stage FDR q-values
 
     Args:
         pvals: 1D array of p-values.
