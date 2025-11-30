@@ -54,11 +54,14 @@ def bh_num_rejections(sorted_pvals, alpha):
 def sharp_computer(pvals, step=0.001):
     """"
     Args:
-        pvals: 1D array-like of p-values.
-        step:  Step size for the q grid (default 0.001, matching Anderson).
+        pvals: 1D array-like of p-values
+        step:  Step size for the q grid (default=0.001, matching Anderson)
 
     Returns:
-        1D NumPy array of sharpened q-values, same order as input pvals.
+        1D NumPy array of sharpened q-values, same order as input pvals
+
+    Raises:
+        ValueError: If any p-value is outside [0, 1] or if pvals is empty
     """
     validate(pvals)
 

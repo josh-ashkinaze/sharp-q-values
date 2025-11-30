@@ -10,15 +10,16 @@ for more details.
 
 # Usage
 
-Very simple---just call the function `sharp_computer` with a list or array of p-values as the argument. The function will 
-return an array of sharpened q-values.
+Very simple---just call the function `sharp_computer` with a list or array of p-values as the argument, `pvals`. The function will 
+return an array of sharpened q-values. The default step size is 0.001 to match Anderson's STATA code, but you can change it by passing in a different value for the `step` argument.
 
 ```python
 import numpy as np
 from sharp_q_values import sharp_computer # or just copy paste sharp_q_values.py
 
 p_values = np.array([0.01, 0.04, 0.03, 0.20, 0.15])
-q_values = sharp_computer(p_values)
+q_values = sharp_computer(p_values) # returns sharpened q-values
+q_values2 = sharp_computer(pvals=p_values, step=0.0001) # you can change the step size if you want
 
 ```
 
