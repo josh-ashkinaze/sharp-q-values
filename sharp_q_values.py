@@ -2,7 +2,9 @@
 Author: Joshua Ashkinaze
 
 Description: Implements the sharpened two-stage FDR q-values computation as described in
-BKY 2006 and Anderson 2008. Python code based on Anderson's STATA code.
+BKY 2006 and Anderson 2008. Python code based on Anderson's STATA code:
+
+https://github.com/BITSS/IDBMarch2018/blob/master/4-MultipleTesting/fdr_sharpened_qvalues.do
 
 Basic algorithm outline:
 
@@ -48,11 +50,12 @@ def bh_num_rejections(sorted_pvals, alpha):
             max_rank = rank
     return max_rank
 
+
 # Main function
 ################
 ################
 def sharp_computer(pvals, step=0.001):
-    """"
+    """
     Args:
         pvals: 1D array-like of p-values
         step:  Step size for the q grid (default=0.001, matching Anderson)
@@ -63,13 +66,10 @@ def sharp_computer(pvals, step=0.001):
     Raises:
         ValueError: If any p-value is outside [0, 1] or if pvals is empty
     """
+    pvals = np.asarray(pvals, dtype=float)
     validate(pvals)
 
-    pvals = np.asarray(pvals, dtype=float)
     m = pvals.size
-
-    if m == 0:
-        return np.array([], dtype=float)
 
     # Work in sorted p-value order
     order = np.argsort(pvals, kind="stable")
@@ -78,9 +78,14 @@ def sharp_computer(pvals, step=0.001):
     # Initialize all q-values to 1.0 in the sorted order
     qvals_sorted = np.ones(m, dtype=float)
 
-    # Sweep q from 1.0 down to > 0 in steps of size `step`
-    q = 1.0
-    while q > 0.0:
+    # -----------------------------------------------------------------
+    # Sweep q = 1.000, 0.999, ..., step
+    # (integer stepping avoids floating-point drift and matches Anderson)
+    # -----------------------------------------------------------------
+    n_steps = int(round(1.0 / step))
+
+    for i in range(n_steps, 0, -1):
+        q = i * step
 
         # Stage 1: conservative BH at level q'
         q_prime = q / (1.0 + q)
@@ -109,19 +114,17 @@ def sharp_computer(pvals, step=0.001):
                 if q < qvals_sorted[k]:
                     qvals_sorted[k] = q
 
-        # Move to the next (smaller) q
-        q -= step
-
     # Map back to the original p-value order
     qvals = np.empty_like(qvals_sorted)
     qvals[order] = qvals_sorted
 
     return qvals
 
+
 def validate(ps):
     """Validate a list of p-values."""
-    for p in ps:
-        if not (0.0 <= p <= 1.0):
-            raise ValueError(f"Invalid p-value: {p}")
     if len(ps) == 0:
         raise ValueError("Empty p-value list")
+    for p in ps:
+        if np.isnan(p) or not (0.0 <= p <= 1.0):
+            raise ValueError(f"Invalid p-value: {p}")
