@@ -26,7 +26,7 @@ q_values2 = compute_q(pvals=p_values, step=0.0001)  # you can change the step si
 # Tests
 
 I compared this against Michael Anderson's STATA code in [3] for different sets of p-values and got results 
-within a floating point tolerance of 1e-6. For context, I'm running Python 3.13 with numpy 2.3.1. I am using STATA 14. 
+within a floating point tolerance of 1e-10. For context, I'm running Python 3.13 with numpy 2.3.1. I am using STATA 14. 
 
 
 # References
