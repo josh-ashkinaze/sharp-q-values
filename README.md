@@ -15,11 +15,11 @@ return an array of sharpened q-values. The default step size is 0.001 to match A
 
 ```python
 import numpy as np
-from sharp_q_values import sharp_computer # or just copy paste sharp_q_values.py
+from sharp_q_values import compute_q  # or just copy paste sharp_q_values.py
 
 p_values = np.array([0.01, 0.04, 0.03, 0.20, 0.15])
-q_values = sharp_computer(p_values) # returns sharpened q-values
-q_values2 = sharp_computer(pvals=p_values, step=0.0001) # you can change the step size if you want
+q_values = compute_q(p_values)  # returns sharpened q-values
+q_values2 = compute_q(pvals=p_values, step=0.0001)  # you can change the step size if you want
 
 ```
 

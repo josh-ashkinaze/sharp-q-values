@@ -9,7 +9,7 @@ Date: 2025-11-29 11:31:50
 
 import unittest
 import numpy as np
-from sharp_q_values import sharp_computer
+from sharp_q_values import compute_q
 
 FLOAT_TOL = 1e-10
 
@@ -44,25 +44,25 @@ class TestSharpComputer(unittest.TestCase):
             with self.subTest(test=test_name):
                 ps = test_data['ps']
                 stata_qs = test_data['stata_qs']
-                computed_qs = sharp_computer(ps)
+                computed_qs = compute_q(ps)
                 np.testing.assert_allclose(computed_qs, stata_qs, atol=FLOAT_TOL)
 
     def test_output_shape(self):
         """Test that output has same shape as input"""
         pvals = [0.01, 0.05, 0.1]
-        qvals = sharp_computer(pvals)
+        qvals = compute_q(pvals)
         self.assertEqual(len(qvals), len(pvals))
 
     def test_returns_numpy_array(self):
         """Test that output is a NumPy array"""
         pvals = [0.01, 0.05, 0.1]
-        qvals = sharp_computer(pvals)
+        qvals = compute_q(pvals)
         self.assertIsInstance(qvals, np.ndarray)
 
     def test_qvals_bounded(self):
         """Test that all q-values are between 0 and 1"""
         pvals = [0.001, 0.05, 0.1, 0.5, 0.9]
-        qvals = sharp_computer(pvals)
+        qvals = compute_q(pvals)
         self.assertTrue(np.all(qvals >= 0))
         self.assertTrue(np.all(qvals <= 1))
 

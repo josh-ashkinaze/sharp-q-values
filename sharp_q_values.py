@@ -31,7 +31,7 @@ import numpy as np
 # Main function
 ################
 ################
-def sharp_computer(pvals, step=0.001):
+def compute_q(pvals, step=0.001):
     """
     Args:
         pvals: 1D array-like of p-values
