@@ -11,7 +11,7 @@ import unittest
 import numpy as np
 from sharp_q_values import sharp_computer
 
-FLOAT_TOL = 1e-6
+FLOAT_TOL = 1e-10
 
 TEST_CASES = {
     't1': {'ps': [0.02, 0.01, 0.03, 0.08, 0.168, 0.168, 0.168],
@@ -44,7 +44,7 @@ class TestSharpComputer(unittest.TestCase):
             with self.subTest(test=test_name):
                 ps = test_data['ps']
                 stata_qs = test_data['stata_qs']
-                computed_qs = sharp_computer(ps, step=0.001)
+                computed_qs = sharp_computer(ps)
                 np.testing.assert_allclose(computed_qs, stata_qs, atol=FLOAT_TOL)
 
     def test_output_shape(self):

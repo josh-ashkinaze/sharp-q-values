@@ -10,45 +10,22 @@ Basic algorithm outline:
 
 Foreach candidate FDR level q from 1.000 down to `step` (Anderson uses `step`= 0.001):
 
-  1. Compute q' = q / (1 + q)  (conservative adjustment).
+  1. Compute qval_adj = qval / (1 + qval)  (conservative adjustment).
 
-  2. Stage 1: Run BH at level q' to get R1 rejections.
-     - If R1 == 0, set m0_hat = m  (assume all null).
-     - If R1 >= m, set m0_hat = 1  (avoid division by zero).
-     - Else, set m0_hat = m - R1.
+  2. Stage 1: Run BH at level qval_adj to get total_rejected1.
 
-  3. Stage 2: Run BH at level q2 = min(q' * (m / m0_hat), 1.0) to get R2.
-     - Hypotheses with rank 1..R2 (in the sorted order) are significant at q.
-     - For each such hypothesis, we record the smallest q at which it
-       has ever been significant. That smallest q is its sharpened q-value.
+  3. Stage 2: Run BH at level qval_2st = qval_adj * (totalpvals / (totalpvals - total_rejected1)) to get total_rejected2.
+     - Special case: if total_rejected1 == totalpvals, qval_2st is infinite in Stata,
+       so every hypothesis is rejected in stage 2 (total_rejected2 = totalpvals).
+     - Hypotheses with rank 1..total_rejected2 are significant at qval.
+     - For each, record the smallest qval at which it was ever significant.
 
 Date: 2025-11-30 09:20:05
 """
 
 import numpy as np
 
-# Helpers
-################
-################
-def bh_num_rejections(sorted_pvals, alpha):
-    """
-    Return the number of BH rejections at level alpha.
 
-    Args:
-        sorted_pvals: 1D array of p-values in ascending order.
-        alpha: FDR level (eg 0.05).
-
-    Returns:
-        Integer number of rejections (R)...or to put it another way, the largest k such that
-        p_(k) <= alpha * k / m, or 0 if none satisfy.
-    """
-    m = sorted_pvals.size
-    max_rank = 0
-    for rank in range(1, m + 1):
-        threshold = alpha * rank / m
-        if sorted_pvals[rank - 1] <= threshold:
-            max_rank = rank
-    return max_rank
 
 
 # Main function
@@ -69,56 +46,71 @@ def sharp_computer(pvals, step=0.001):
     pvals = np.asarray(pvals, dtype=float)
     validate(pvals)
 
-    m = pvals.size
+    totalpvals = pvals.size
 
     # Work in sorted p-value order
-    order = np.argsort(pvals, kind="stable")
-    sorted_p = pvals[order]
+    original_sorting_order = np.argsort(pvals, kind="stable")
+    sorted_pval = pvals[original_sorting_order]
 
     # Initialize all q-values to 1.0 in the sorted order
-    qvals_sorted = np.ones(m, dtype=float)
+    bky06_qval = np.ones(totalpvals, dtype=float)
 
-    # -----------------------------------------------------------------
-    # Sweep q = 1.000, 0.999, ..., step
-    # (integer stepping avoids floating-point drift and matches Anderson)
-    # -----------------------------------------------------------------
     n_steps = int(round(1.0 / step))
 
     for i in range(n_steps, 0, -1):
-        q = i * step
+        qval = i * step
 
-        # Stage 1: conservative BH at level q'
-        q_prime = q / (1.0 + q)
+        # Stage 1: conservative BH at level qval_adj = qval / (1 + qval)
+        qval_adj = qval / (1.0 + qval)
+        total_rejected1 = bh_num_rejections(sorted_pval, qval_adj)
 
-        R1 = bh_num_rejections(sorted_p, q_prime)
-
-        # Estimate m0_hat based on R1
-        if R1 == 0:
-            m0_hat = m
-        elif R1 >= m:
-            m0_hat = 1
+        # Stage 2: adaptive BH at level qval_2st = qval_adj * (totalpvals / m0)
+        # where m0 = totalpvals - total_rejected1.
+        # When total_rejected1 == totalpvals, m0 = 0 and qval_2st is infinite in Stata,
+        # meaning every hypothesis gets rejected in stage 2, so I just set total_rejected2 = totalpvals
+        # in that case.
+        if total_rejected1 == totalpvals:
+            total_rejected2 = totalpvals
         else:
-            m0_hat = m - R1
+            qval_2st = qval_adj * (totalpvals / (totalpvals - total_rejected1))
+            total_rejected2 = bh_num_rejections(sorted_pval, qval_2st)
 
-        # Stage 2: adaptive BH with inflated level q2
-        q2 = q_prime * (m / m0_hat)
-        if q2 > 1.0:
-            q2 = 1.0
-
-        R2 = bh_num_rejections(sorted_p, q2)
-
-        # Any hypothesis with rank 1 to R2 is "significant at level q"
-        # Update each one's q-value to the smallest q seen so far.
-        if R2 > 0:
-            for k in range(R2):  # k = 0..R2-1 (ranks 1..R2)
-                if q < qvals_sorted[k]:
-                    qvals_sorted[k] = q
+        # Any hypothesis with rank 1..total_rejected2 is significant at qval.
+        # Update to smallest qval seen so far.
+        if total_rejected2 > 0:
+            for rank in range(total_rejected2):
+                if qval < bky06_qval[rank]:
+                    bky06_qval[rank] = qval
 
     # Map back to the original p-value order
-    qvals = np.empty_like(qvals_sorted)
-    qvals[order] = qvals_sorted
+    qvals = np.empty_like(bky06_qval)
+    qvals[original_sorting_order] = bky06_qval
 
     return qvals
+
+
+# Helpers
+################
+################
+
+def bh_num_rejections(sorted_pvals, alpha):
+    """
+    Return the number of BH rejections at level alpha.
+
+    Args:
+        sorted_pvals: 1D array of p-values in ascending order.
+        alpha: FDR level (e.g. 0.05).
+
+    Returns:
+        Integer total_rejected: largest rank such that p_(rank) <= alpha * rank / totalpvals, or 0 if none.
+    """
+    totalpvals = sorted_pvals.size
+    total_rejected = 0
+    for rank in range(1, totalpvals + 1):
+        fdr_temp = alpha * rank / totalpvals
+        if sorted_pvals[rank - 1] <= fdr_temp:
+            total_rejected = rank
+    return total_rejected
 
 
 def validate(ps):
