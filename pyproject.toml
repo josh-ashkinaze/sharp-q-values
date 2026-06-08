@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sharp-q-values"
+version = "0.1.0"
+description = "Sharpened two-stage FDR q-values (BKY 2006 / Anderson 2008)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy"]
+
+[project.urls]
+Homepage = "https://github.com/joshuaashkinaze/q-values"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sharp_q_values"]
