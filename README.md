@@ -1,6 +1,6 @@
 # sharp-q-values
 
-[![Tests](https://github.com/joshuaashkinaze/q-values/actions/workflows/tests.yml/badge.svg)](https://github.com/josh-ashkinaze/sharp-q-values/actions/workflows/tests.yml)
+[![Tests](https://github.com/josh-ashkinaze/sharp-q-values/actions/workflows/tests.yml/badge.svg)](https://github.com/josh-ashkinaze/sharp-q-values/actions/workflows/tests.yml)
 [![PyPI version](https://img.shields.io/pypi/v/sharp-q-values)](https://pypi.org/project/sharp-q-values/)
 [![Python versions](https://img.shields.io/badge/python-3.9%2B-blue)](https://pypi.org/project/sharp-q-values/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
