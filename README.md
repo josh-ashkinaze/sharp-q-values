@@ -2,7 +2,7 @@
 
 [![Tests](https://github.com/joshuaashkinaze/q-values/actions/workflows/tests.yml/badge.svg)](https://github.com/joshuaashkinaze/q-values/actions/workflows/tests.yml)
 [![PyPI version](https://img.shields.io/pypi/v/sharp-q-values)](https://pypi.org/project/sharp-q-values/)
-[![Python versions](https://img.shields.io/pypi/pyversions/sharp-q-values)](https://pypi.org/project/sharp-q-values/)
+[![Python versions](https://img.shields.io/badge/python-3.9%2B-blue)](https://pypi.org/project/sharp-q-values/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Python implementation of the sharpened q-values described in Anderson 2008 [1] and BKY 2006 [2], based on Anderson's STATA code [3].
